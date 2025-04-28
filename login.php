@@ -1,9 +1,10 @@
 <?php
-include '../config/db_connection.php';
-require '../vendor/autoload.php'; // For JWT library, e.g., firebase/php-jwt
+include './config/db_connection.php';
+require './vendor/autoload.php'; // For JWT library, e.g., firebase/php-jwt
 
 use Firebase\JWT\JWT;
 
+echo 'login';
 $secretKey = "YOUR_SECRET_KEY"; // Use a secure key for token signing
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
