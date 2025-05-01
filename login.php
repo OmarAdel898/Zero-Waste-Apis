@@ -3,7 +3,6 @@
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
 // Handle preflight request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -46,8 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'user_id' => $user['user_id'],
         'role' => $user['role'],
         'name' => $user['name'],
-        'iat' => time(),
-        'exp' => time() + (60 * 60) // 1 hour
+        'iat' => date('Y-m-d H:i:s', time()), // Issued at (formatted)
+        'exp' => date('Y-m-d H:i:s', time() + 3600) // Expiration (formatted)
+
     ];
 
     $jwt = JWT::encode($payload, $secretKey, 'HS256');
