@@ -1,0 +1,30 @@
+<?php
+include './config/db_connection.php';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $token = $_POST['token'];
+    $new_password = $_POST['password'];
+
+    // Check if token is valid
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE reset_token = :token AND reset_expires > NOW()");
+    $stmt->execute(['token' => $token]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user) {
+        echo json_encode(["error" => "Invalid or expired token"]);
+        exit;
+    }
+
+    // Hash the new password
+    $hashedPassword = password_hash($new_password, PASSWORD_BCRYPT);
+
+    // Update user password and remove the token
+    $stmt = $pdo->prepare("UPDATE users SET password = :password, reset_token = NULL, reset_expires = NULL WHERE reset_token = :token");
+    $stmt->execute([
+        'password' => $hashedPassword,
+        'token' => $token
+    ]);
+
+    echo json_encode(["message" => "Password reset successfully"]);
+}
+?>

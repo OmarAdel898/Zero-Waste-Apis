@@ -45,8 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'user_id' => $user['user_id'],
         'role' => $user['role'],
         'name' => $user['name'],
-        'iat' => date('Y-m-d H:i:s', time()), // Issued at (formatted)
-        'exp' => date('Y-m-d H:i:s', time() + 3600) // Expiration (formatted)
+        'iat' => time(), // Issued at (formatted)
+        'exp' => time() + 3600 // Expiration (formatted)
 
     ];
 
