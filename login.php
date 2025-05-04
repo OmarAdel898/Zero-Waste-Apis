@@ -3,6 +3,7 @@
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
 // Handle preflight request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -10,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 include './config/db_connection.php';
-require './vendor/autoload.php'; // For JWT library, e.g., firebase/php-jwt
+require './vendor/autoload.php'; // For JWT
 
 use Firebase\JWT\JWT;
 
@@ -22,7 +23,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $data['email'];
     $password = $data['password'];
 
-    // Validate inputs
     if (!$email || !$password) {
         http_response_code(400);
         echo json_encode(["error" => "Missing email or password"]);
@@ -45,9 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'user_id' => $user['user_id'],
         'role' => $user['role'],
         'name' => $user['name'],
-        'iat' => time(), // Issued at (formatted)
-        'exp' => time() + 3600 // Expiration (formatted)
-
+        'iat' => time(),
+        'exp' => time() + 3600
     ];
 
     $jwt = JWT::encode($payload, $secretKey, 'HS256');
@@ -55,7 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     http_response_code(200);
     echo json_encode([
         "message" => "✅ Login successful",
-        "token" => $jwt
+        "token" => $jwt,
+        "user_id" => $user['user_id']
     ]);
 }
 ?>

@@ -9,7 +9,7 @@ $email = $data['email'] ?? null;
 
 if (!$email) {
     http_response_code(400);
-    echo json_encode(["error" => "Missing email in request body"]);
+    echo json_encode(["error" => "Missing email"]);
     exit;
 }
 
@@ -19,23 +19,25 @@ $stmt->execute(['email' => $email]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$user) {
+    http_response_code(404);
     echo json_encode(["error" => "Email not found"]);
     exit;
 }
 
-// Generate a secure token
+// Generate and hash token
 $token = bin2hex(random_bytes(32));
+$hashedToken = hash('sha256', $token);
 $expires_at = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
-// Store token in database
+// Store hashed token
 $stmt = $pdo->prepare("UPDATE users SET reset_token = :token, reset_expires = :expires WHERE email = :email");
 $stmt->execute([
-    'token' => $token,
+    'token' => $hashedToken,
     'expires' => $expires_at,
     'email' => $email
 ]);
 
-// Send email using PHPMailer
+// Send email
 $mail = new PHPMailer(true);
 try {
     $mail->isSMTP();
@@ -50,12 +52,12 @@ try {
     $mail->addAddress($email);
     $mail->Subject = 'Password Reset Request';
     $mail->isHTML(true);
-    
+
     $resetLink = "https://zerowaste-cgdtdqhpcuhxceb2.uaenorth-01.azurewebsites.net/reset_password.php?token=$token";
     $mail->Body = "<p>Click <a href='$resetLink'>here</a> to reset your password. This link expires in 1 hour.</p>";
 
     $mail->send();
-    echo json_encode(["message" => "✅ Password reset link sent successfully"]);
+    echo json_encode(["message" => "✅ Password reset link sent successfully", "expires_at" => $expires_at]);
 } catch (Exception $e) {
     echo json_encode(["error" => "❌ Email sending failed: " . $mail->ErrorInfo]);
 }

@@ -51,8 +51,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'password' => $hashedPassword,
             'role' => $role
         ]);
+
+        // Get the inserted user's ID
+        $user_id = $pdo->lastInsertId();
+
+        // If the new user is a normal user, add to `user_points` with default points = 0
+        if ($role === 'normal_user') {
+            $stmt = $pdo->prepare("INSERT INTO user_points (user_id, points) VALUES (:user_id, 0)");
+            $stmt->execute(['user_id' => $user_id]);
+        }
+
         http_response_code(201);
-        echo json_encode(["message" => "✅ User registered successfully"]);
+        echo json_encode(["message" => "✅ User registered successfully", "user_id" => $user_id]);
     } catch (PDOException $e) {
         http_response_code(500);
         echo json_encode(["error" => "❌ Failed to register user: " . $e->getMessage()]);
