@@ -22,10 +22,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $user_id = $throwingUser ? $throwingUser['user_id'] : null;
 
-    // Insert waste disposal record
-    $sql = "INSERT INTO waste_disposal (user_id, bin_id, type, points_earned, image_path) 
-            VALUES (:user_id, :bin_id, :type, :points_earned, :image_path)";
+    $timestamp = date('Y-m-d H:i:s'); // Get current date & time
+
+    $sql = "INSERT INTO waste_disposal (user_id, bin_id, type, points_earned, image_path, timestamp) 
+        VALUES (:user_id, :bin_id, :type, :points_earned, :image_path, :timestamp)";
     $stmt = $pdo->prepare($sql);
+
 
     try {
         $stmt->execute([
@@ -33,7 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'bin_id' => $bin_id,
             'type' => $type,
             'points_earned' => $points_earned,
-            'image_path' => $image_path
+            'image_path' => $image_path,
+            'timestamp' => $timestamp  // New field added here
         ]);
 
         // Update user points
