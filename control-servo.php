@@ -1,11 +1,12 @@
 <?php
 $iotHubName = "smartbin-iot-hub";
 $deviceId = "raspberrypi-bin";
-$sasToken = "SharedAccessSignature sr=smartbin-iot-hub.azure-devices.net&sig=xV0K3pNXgbtzL5gDQyVg5ZF1eJE0rEINBdJS5n6hVyM%3D&se=1748742527&skn=iothubowner";
+$sasToken = "SharedAccessSignature sr=smartbin-iot-hub.azure-devices.net&sig=zd5mPktrtbNodW%2F0c350aphI2XRrYNUm2%2FyjMxZq3Dk%3D&se=2064345560&skn=iothubowner";
 
 $url = "https://$iotHubName.azure-devices.net/devices/$deviceId/messages/devicebound?api-version=2020-09-30";
 
-$message = json_encode(["command" => "turn-servo"]);
+$message = file_get_contents('php://input');
+
 
 $ch = curl_init($url);
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
