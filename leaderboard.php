@@ -1,6 +1,6 @@
 <?php
 include './config/db_connection.php';
-
+header("Access-Control-Allow-Origin: *"); // Allow all origins (for development)
 header("Content-Type: application/json");
 
 try {
