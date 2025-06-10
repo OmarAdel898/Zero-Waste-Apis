@@ -2,6 +2,7 @@
 include './config/db_connection.php';
 
 header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
 
 try {
     // 🔹 Fetch all bins from the database
