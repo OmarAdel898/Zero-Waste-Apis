@@ -1,5 +1,7 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: *"); // or set a specific origin
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 require './vendor/autoload.php';
 use Firebase\JWT\JWT;
