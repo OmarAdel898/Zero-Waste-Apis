@@ -1,6 +1,5 @@
 <?php
 header("Access-Control-Allow-Origin: *");
-
 include './config/db_connection.php';
 
 header('Content-Type: application/json');
@@ -17,18 +16,28 @@ try {
 
         foreach ($bins_to_notify as $bin) {
             foreach ($collectors as $collector) {
-                // 🔹 Send notification for each collector
-                $stmt = $pdo->prepare("INSERT INTO notifications (collector_id, bin_id, message) VALUES (:collector_id, :bin_id, :message)");
+                // 🔹 Check if notification already exists
+                $stmt = $pdo->prepare("SELECT COUNT(*) FROM notifications WHERE collector_id = :collector_id AND bin_id = :bin_id");
                 $stmt->execute([
                     'collector_id' => $collector['user_id'],
-                    'bin_id' => $bin['bin_id'],
-                    'message' => "🚨 Bin #{$bin['bin_id']} needs emptying! Fill level is below 10."
+                    'bin_id' => $bin['bin_id']
                 ]);
+                $exists = $stmt->fetchColumn();
+
+                if ($exists == 0) {
+                    // 🔹 Insert only if it doesn’t exist
+                    $stmt = $pdo->prepare("INSERT INTO notifications (collector_id, bin_id, message) VALUES (:collector_id, :bin_id, :message)");
+                    $stmt->execute([
+                        'collector_id' => $collector['user_id'],
+                        'bin_id' => $bin['bin_id'],
+                        'message' => "🚨 Bin #{$bin['bin_id']} needs emptying! Fill level is below 10."
+                    ]);
+                }
             }
         }
 
         http_response_code(201);
-        echo json_encode(["message" => "✅ Notifications sent to all collectors"]);
+        echo json_encode(["message" => "✅ Notifications sent (avoiding duplicates)"]);
     } else {
         http_response_code(200);
         echo json_encode(["message" => "✅ No bins need emptying"]);
