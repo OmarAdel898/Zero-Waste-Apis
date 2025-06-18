@@ -1,10 +1,21 @@
 <?php
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: *"); // Change to specific origin like http://localhost:8000 in production
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+
+// Handle OPTIONS request
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+require './vendor/autoload.php';
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 include './config/db_connection.php';
 
 header('Content-Type: application/json');
 
-// 🔹 Get token from request headers
+// 🔹 Validate Token
 $headers = getallheaders();
 $authHeader = $headers['Authorization'] ?? null;
 
@@ -37,18 +48,22 @@ if (!$bin_id) {
 }
 
 try {
-    // 🔹 Delete notification for this collector and bin
-    $stmt = $pdo->prepare("DELETE FROM notifications WHERE collector_id = :collector_id AND bin_id = :bin_id");
+    $pdo->beginTransaction();
+
+    // 🔹 Record collector action
+    $stmt = $pdo->prepare("INSERT INTO collector_actions (collector_id, bin_id, action_type) VALUES (:collector_id, :bin_id, 'empty_bin')");
     $stmt->execute(['collector_id' => $collector_id, 'bin_id' => $bin_id]);
 
-    if ($stmt->rowCount() > 0) {
-        http_response_code(200);
-        echo json_encode(["message" => "✅ Notification deleted successfully"]);
-    } else {
-        http_response_code(404);
-        echo json_encode(["message" => "❌ No notification found for this bin"]);
-    }
+    // 🔹 Delete notifications for this bin
+    $stmt = $pdo->prepare("DELETE FROM notifications WHERE bin_id = :bin_id");
+    $stmt->execute(['bin_id' => $bin_id]);
+
+    $pdo->commit();
+
+    http_response_code(200);
+    echo json_encode(["message" => "✅ Bin task accepted. Notifications deleted & action recorded."]);
 } catch (PDOException $e) {
+    $pdo->rollBack();
     http_response_code(500);
     echo json_encode(["error" => "❌ Database error: " . $e->getMessage()]);
 }
