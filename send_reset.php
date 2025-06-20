@@ -55,7 +55,7 @@ try {
     $mail->Subject = 'Password Reset Request';
     $mail->isHTML(true);
 
-    $resetLink = "https://zerowaste-cgdtdqhpcuhxceb2.uaenorth-01.azurewebsites.net/reset_password.php?token=$token";
+    $resetLink = "https://zerowaste-cgdtdqhpcuhxceb2.uaenorth-01.azurewebsites.net/reset_form.php?token=$token";
     $mail->Body = $mail->Body = "
 <div style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px;'>
   <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);'>
