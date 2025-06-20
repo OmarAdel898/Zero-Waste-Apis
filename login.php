@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'role' => $user['role'],
         'name' => $user['name'],
         'iat' => time(),
-        'exp' => time() + 3600
+        'exp' => time() + (24 * 60 * 60) 
     ];
 
     $jwt = JWT::encode($payload, $secretKey, 'HS256');

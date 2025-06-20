@@ -56,7 +56,29 @@ try {
     $mail->isHTML(true);
 
     $resetLink = "https://zerowaste-cgdtdqhpcuhxceb2.uaenorth-01.azurewebsites.net/reset_password.php?token=$token";
-    $mail->Body = "<p>Click <a href='$resetLink'>here</a> to reset your password. This link expires in 1 hour.</p>";
+    $mail->Body = $mail->Body = "
+<div style='font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 30px;'>
+  <div style='max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);'>
+    <div style='background-color: #2ecc71; padding: 20px; text-align: center; color: white;'>
+      <h2 style='margin: 0;'>Zero Waste Management</h2>
+    </div>
+    <div style='padding: 30px;'>
+      <h3 style='color: #333;'>Reset Your Password</h3>
+      <p style='font-size: 16px; color: #555;'>
+        Hello, we received a request to reset your password. Click the button below to reset it.
+        This link will expire in 1 hour for your security.
+      </p>
+      <div style='text-align: center; margin: 30px 0;'>
+        <a href='$resetLink' style='background-color: #2ecc71; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; display: inline-block;'>Reset Password</a>
+      </div>
+      <p style='font-size: 14px; color: #999;'>If you did not request this, you can ignore this email.</p>
+    </div>
+    <div style='background-color: #f0f0f0; text-align: center; padding: 15px; font-size: 12px; color: #aaa;'>
+      &copy; 2025 Zero Waste Management. All rights reserved.
+    </div>
+  </div>
+</div>";
+
 
     $mail->send();
     echo json_encode(["message" => "✅ Password reset link sent successfully", "expires_at" => $expires_at]);
