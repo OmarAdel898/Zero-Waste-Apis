@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -81,7 +82,7 @@
       }
 
       try {
-        const response = await fetch('https://yourserver.com/reset_password.php', {
+        const response = await fetch('https://zerowaste-cgdtdqhpcuhxceb2.uaenorth-01.azurewebsites.net/reset_password.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token, new_password, confirm_password })
@@ -91,9 +92,23 @@
         msg.textContent = result.message || result.error;
         msg.style.color = response.ok ? "green" : "red";
       } catch (err) {
-        msg.textContent = "❌ Network error. Please try again.";
-        msg.style.color = "red";
-      }
+  const msg = document.getElementById('msg');
+
+  if (err instanceof TypeError) {
+    // Network-level error (e.g. server down, CORS issues)
+    msg.textContent = "❌ Network connection failed.";
+  } else {
+    // Attempt to parse the error message from the server's response
+    try {
+      const errorJson = await err.response.json();
+      msg.textContent = `❌ ${errorJson.error || "Unexpected error occurred"}`;
+    } catch {
+      msg.textContent = "❌ Unexpected error. Please try again.";
+    }
+  }
+
+  msg.style.color = "red";
+}
     });
   </script>
 
