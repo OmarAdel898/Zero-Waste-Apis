@@ -18,7 +18,7 @@
       border-radius: 8px;
       box-shadow: 0 0 10px #ccc;
     }
-    input[type="text"], input[type="password"] {
+    input[type="password"] {
       width: 100%;
       padding: 10px;
       margin: 10px 0 15px;
@@ -42,8 +42,6 @@
 
   <form id="resetForm">
     <h2>Reset Your Password</h2>
-    <label for="token">Reset Token</label>
-    <input type="text" id="token" name="token" placeholder="Enter your reset token" required />
 
     <label for="new_password">New Password</label>
     <input type="password" id="new_password" name="new_password" required />
@@ -56,30 +54,46 @@
   </form>
 
   <script>
+    function getTokenFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('token');
+    }
+
     const form = document.getElementById('resetForm');
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
 
-      const token = document.getElementById('token').value.trim();
+      const token = getTokenFromURL();
       const new_password = document.getElementById('new_password').value;
       const confirm_password = document.getElementById('confirm_password').value;
       const msg = document.getElementById('msg');
 
-      if (new_password !== confirm_password) {
-        msg.innerText = "❌ Passwords do not match!";
-        msg.style.color = 'red';
+      if (!token) {
+        msg.textContent = "❌ Reset token is missing from the URL.";
+        msg.style.color = "red";
         return;
       }
 
-      const response = await fetch('https://yourserver.com/reset_password.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, new_password, confirm_password })
-      });
+      if (new_password !== confirm_password) {
+        msg.textContent = "❌ Passwords do not match.";
+        msg.style.color = "red";
+        return;
+      }
 
-      const result = await response.json();
-      msg.innerText = result.message || result.error;
-      msg.style.color = response.ok ? 'green' : 'red';
+      try {
+        const response = await fetch('https://yourserver.com/reset_password.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, new_password, confirm_password })
+        });
+
+        const result = await response.json();
+        msg.textContent = result.message || result.error;
+        msg.style.color = response.ok ? "green" : "red";
+      } catch (err) {
+        msg.textContent = "❌ Network error. Please try again.";
+        msg.style.color = "red";
+      }
     });
   </script>
 
