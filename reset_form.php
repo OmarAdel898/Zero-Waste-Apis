@@ -19,9 +19,9 @@
       box-shadow: 0 0 10px #ccc;
     }
     input[type="password"] {
-      width: 100%;
+      width: 95%;
       padding: 10px;
-      margin: 10px 0 15px;
+      margin: 10px 0px 15px;
       border: 1px solid #ccc;
       border-radius: 4px;
     }
